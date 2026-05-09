@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>LOTUS STORE</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#C0141E;--navy2:#9E0F18;--gold:#fff;--gold2:#FFE0E0;
+  --bg:#F7F5F5;--card:#fff;--border:rgba(0,0,0,0.1);
+  --text:#1A0A0A;--muted:#7A6060;--red:#C0141E;
+}
+html,body{height:100%;font-family:'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--text);}
+body{max-width:430px;margin:0 auto;}
+.screen{display:none;flex-direction:column;min-height:100vh;}
+.screen.active{display:flex;}
+
+/* ─── ACCESS ─── */
+#s-access{background:var(--navy);}
+.access-inner{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 28px;}
+.team-badge{text-align:center;margin-bottom:44px;}
+.tb-tag{font-size:11px;letter-spacing:0.35em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
+.tb-name{font-size:32px;font-weight:800;color:#fff;letter-spacing:-0.02em;}
+.tb-name span{color:var(--gold);}
+.tb-sub{font-size:12px;color:rgba(255,255,255,0.3);margin-top:6px;letter-spacing:0.12em;}
+.a-card{width:100%;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.14);border-radius:18px;padding:28px 24px;}
+.a-label{font-size:11px;letter-spacing:0.15em;color:rgba(255,255,255,0.45);text-transform:uppercase;display:block;margin-bottom:12px;}
+.a-input{width:100%;background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.18);border-radius:10px;padding:16px;font-size:22px;letter-spacing:0.6em;color:#fff;text-align:center;text-transform:uppercase;outline:none;margin-bottom:6px;}
+.a-input:focus{border-color:#fff;}
+.a-input::placeholder{color:rgba(255,255,255,0.18);font-size:14px;letter-spacing:0.08em;}
+.a-err{font-size:12px;color:#EF9F9F;text-align:center;height:20px;line-height:20px;margin-bottom:6px;}
+.btn-gold{width:100%;background:#fff;color:var(--navy);border:none;border-radius:10px;padding:16px;font-size:15px;font-weight:800;letter-spacing:0.08em;cursor:pointer;text-transform:uppercase;}
+.demo-hint{margin-top:18px;font-size:11px;color:rgba(255,255,255,0.35);text-align:center;}
+
+/* ─── COMMON HEADER ─── */
+.top-bar{background:var(--navy);padding:15px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50;}
+.bar-logo{font-size:16px;font-weight:800;color:#fff;letter-spacing:-0.01em;}
+.bar-logo span{color:rgba(255,255,255,0.7);}
+.bar-cart{background:rgba(255,255,255,0.12);border:none;border-radius:8px;padding:8px 14px;color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:7px;}
+.badge{background:#fff;color:var(--navy);border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.back-link{font-size:13px;font-weight:600;color:var(--gold);cursor:pointer;}
+
+/* ─── PROFILE ─── */
+#s-profile{background:var(--bg);}
+.profile-bar{background:#9E0F18;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.who{font-size:12px;color:rgba(255,255,255,0.55);}
+.who b{color:#fff;}
+.edit-link{font-size:11px;color:var(--gold);cursor:pointer;background:none;border:none;padding:0;}
+.form-body{flex:1;padding:24px 18px;overflow-y:auto;}
+.f-intro{font-size:16px;font-weight:800;margin-bottom:5px;}
+.f-sub{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+.f-group{margin-bottom:22px;}
+.f-label{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px;}
+.f-input{width:100%;border:1px solid var(--border);border-radius:10px;padding:14px;font-size:15px;background:#fff;color:var(--text);outline:none;-webkit-appearance:none;}
+.f-input:focus{border-color:var(--navy);}
+.f-hint{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.6;}
+.pay-opts{display:flex;gap:10px;margin-top:8px;}
+.pay-opt{flex:1;border:1px solid var(--border);border-radius:12px;padding:16px 8px;text-align:center;cursor:pointer;background:#fff;transition:border-color 0.15s;}
+.pay-opt.sel{border-color:var(--navy);background:#FFF0F0;}
+.po-icon{font-size:24px;margin-bottom:6px;}
+.po-name{font-size:13px;font-weight:700;}
+.po-sub{font-size:10px;color:var(--muted);margin-top:3px;}
+.form-foot{padding:16px 18px;background:var(--bg);border-top:0.5px solid var(--border);flex-shrink:0;}
+
+/* ─── SHOP ─── */
+#s-shop{background:var(--bg);}
+.shop-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;}
+.sec-label{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.products{display:flex;flex-direction:column;gap:10px;}
+.p-card{background:var(--card);border:0.5px solid var(--border);border-radius:14px;overflow:hidden;display:flex;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform 0.1s;}
+.p-card:active{transform:scale(0.98);}
+.p-thumb{width:96px;min-height:96px;flex-shrink:0;overflow:hidden;position:relative;background:#E8E6E0;}
+.p-thumb img{width:100%;height:100%;object-fit:cover;}
+.p-thumb .no-img{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;background:#E0DEDA;}
+.p-body{padding:14px;flex:1;display:flex;flex-direction:column;justify-content:center;}
+.p-name{font-size:14px;font-weight:700;line-height:1.3;}
+.p-sizes{font-size:11px;color:var(--muted);margin:4px 0 10px;}
+.p-footer{display:flex;align-items:center;justify-content:space-between;}
+.p-price{font-size:16px;font-weight:800;}
+.p-arrow{font-size:20px;color:var(--muted);}
+
+/* ─── DETAIL ─── */
+#s-detail{background:var(--bg);}
+.detail-img{height:220px;background:#E8E6E0;flex-shrink:0;overflow:hidden;position:relative;}
+.detail-img img{width:100%;height:100%;object-fit:cover;}
+.detail-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 18px;}
+.d-name{font-size:22px;font-weight:800;margin-bottom:5px;line-height:1.3;}
+.d-price{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:24px;}
+.sz-label{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:block;}
+.sz-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;}
+.sz-btn{border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:var(--text);-webkit-tap-highlight-color:transparent;}
+.sz-btn.sel{background:var(--navy);color:#fff;border-color:var(--navy);}
+.qty-wrap{display:flex;align-items:center;border:1px solid var(--border);border-radius:12px;background:#fff;width:fit-content;margin-bottom:28px;}
+.q-btn{width:46px;height:46px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);}
+.q-num{width:44px;text-align:center;font-size:17px;font-weight:800;}
+.add-btn{width:100%;background:var(--navy);color:#fff;border:none;border-radius:12px;padding:17px;font-size:16px;font-weight:800;cursor:pointer;letter-spacing:0.03em;}
+.add-btn:disabled{opacity:0.3;cursor:default;}
+.need-sz{font-size:12px;color:var(--red);margin-top:10px;text-align:center;display:none;}
+
+/* ─── CART ─── */
+#s-cart{background:var(--bg);}
+.cart-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;}
+.empty-cart{text-align:center;padding:90px 20px;color:var(--muted);}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+.empty-txt{font-size:15px;}
+.c-item{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.c-thumb{width:56px;height:56px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#E8E6E0;}
+.c-thumb img{width:100%;height:100%;object-fit:cover;}
+.c-info{flex:1;min-width:0;}
+.c-name{font-size:14px;font-weight:700;line-height:1.3;}
+.c-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.c-right{text-align:right;flex-shrink:0;}
+.c-price{font-size:15px;font-weight:800;}
+.c-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;display:block;margin-top:6px;margin-left:auto;}
+.cart-foot{padding:16px 18px;border-top:0.5px solid var(--border);background:var(--bg);flex-shrink:0;}
+.total-row{display:flex;justify-content:space-between;font-size:18px;font-weight:800;margin-bottom:14px;}
+
+/* ─── CONFIRM ─── */
+#s-confirm{background:var(--bg);}
+.confirm-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 16px 40px;}
+.confirm-hero{background:var(--navy);border-radius:18px;padding:28px 24px;text-align:center;margin-bottom:20px;}
+.ch-tag{font-size:10px;letter-spacing:0.25em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
+.ch-title{font-size:18px;font-weight:800;color:#fff;}
+.ch-num{font-size:32px;font-weight:800;color:var(--gold);margin-top:8px;letter-spacing:-0.01em;}
+.conf-sec{background:var(--card);border:0.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;}
+.cs-title{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.cs-row{display:flex;justify-content:space-between;align-items:flex-start;font-size:13px;padding:7px 0;border-bottom:0.5px solid var(--border);gap:8px;}
+.cs-row:last-child{border:none;padding-bottom:0;}
+.cs-row .label{color:var(--muted);flex-shrink:0;}
+.cs-row .val{font-weight:700;text-align:right;word-break:break-all;}
+.info-box{border-radius:12px;padding:16px;font-size:13px;line-height:1.75;margin-bottom:16px;white-space:pre-line;}
+.info-box.card{background:#FFF8E7;border:1px solid #D4A820;color:#7A5A00;}
+.info-box.bank{background:#EFF6FF;border:1px solid #93C5FD;color:#1E40AF;}
+.pay-link-btn{width:100%;background:var(--gold);color:var(--navy);border:none;border-radius:12px;padding:17px;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:12px;}
+.btn-outline{width:100%;background:none;color:var(--navy);border:1px solid var(--border);border-radius:12px;padding:15px;font-size:14px;font-weight:600;cursor:pointer;}
+
+/* shared */
+.btn-navy{width:100%;background:var(--navy);color:#fff;border:none;border-radius:12px;padding:17px;font-size:15px;font-weight:800;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<!-- ① アクセス -->
+<div class="screen active" id="s-access">
+  <div class="access-inner">
+    <div class="team-badge">
+      <img src="https://drive.google.com/thumbnail?id=1fECfdO4_Imi-m1pYEFcPjJ4MDJwyfv_z&sz=w300"
+        alt="LOTUS" style="width:110px;height:110px;object-fit:contain;margin-bottom:16px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.25);">
+      <div class="tb-tag">Kosei Gakuen</div>
+      <div class="tb-name">LOTUS<span> STORE</span></div>
+      <div class="tb-sub">TEAM MEMBERS ONLY</div>
+    </div>
+    <div class="a-card">
+      <span class="a-label">チームコード</span>
+      <input class="a-input" id="code-in" type="text" maxlength="8"
+             placeholder="• • • • • •" autocomplete="off" autocapitalize="characters">
+      <div class="a-err" id="a-err">&nbsp;</div>
+      <button class="btn-gold" onclick="checkCode()">入 る</button>
+    </div>
+    <div class="demo-hint">デモ用コード：LOTUS</div>
+  </div>
+</div>
+
+<!-- ② プロフィール登録 -->
+<div class="screen" id="s-profile">
+  <div class="top-bar"><div class="bar-logo">LOTUS <span>STORE</span></div></div>
+  <div class="form-body">
+    <div class="f-intro">はじめまして！</div>
+    <div class="f-sub">初回のみ入力してください。<br>次回からは自動的に入力されます。</div>
+    <div class="f-group">
+      <label class="f-label">選手の名前</label>
+      <input class="f-input" id="p-name" placeholder="例：田中 太郎" autocomplete="name">
+    </div>
+    <div style="display:flex;gap:10px;">
+      <div class="f-group" style="flex:1;">
+        <label class="f-label">期</label>
+        <input class="f-input" id="p-grade" placeholder="例：3" type="number" min="1" max="99">
+      </div>
+      <div class="f-group" style="flex:1;">
+        <label class="f-label">背番号</label>
+        <input class="f-input" id="p-number" placeholder="例：21" type="number" min="0" max="99">
+      </div>
+    </div>
+    <div class="f-group">
+      <label class="f-label">保護者メールアドレス</label>
+      <input class="f-input" id="p-email" type="email" placeholder="parent@example.com" autocomplete="email">
+      <div class="f-hint">請求書・決済リンクを直接お送りします。<br>選手を経由しません。</div>
+    </div>
+    <div class="f-group">
+      <label class="f-label">お支払い希望</label>
+      <div class="pay-opts">
+        <div class="pay-opt sel" id="po-card" onclick="selPay('card')">
+          <div class="po-icon">💳</div>
+          <div class="po-name">カード払い</div>
+          <div class="po-sub">Square</div>
+        </div>
+        <div class="pay-opt" id="po-bank" onclick="selPay('bank')">
+          <div class="po-icon">🏦</div>
+          <div class="po-name">銀行振込</div>
+          <div class="po-sub">後日確認</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="form-foot">
+    <button class="btn-navy" onclick="saveProfile()">注文に進む →</button>
+  </div>
+</div>
+
+<!-- ③ 商品一覧 -->
+<div class="screen" id="s-shop">
+  <div class="top-bar">
+    <div class="bar-logo">LOTUS <span>STORE</span></div>
+    <button class="bar-cart" onclick="showCart()">
+      🛒 カート <span class="badge" id="cart-badge">0</span>
+    </button>
+  </div>
+  <div class="profile-bar">
+    <div class="who">注文者：<b id="disp-name">—</b></div>
+    <button class="edit-link" onclick="goto('s-profile')">情報を変更</button>
+  </div>
+  <div class="shop-body">
+    <div class="sec-label">アイテム一覧</div>
+    <div class="products" id="products-list"></div>
+  </div>
+</div>
+
+<!-- ④ 商品詳細 -->
+<div class="screen" id="s-detail">
+  <div class="top-bar">
+    <span class="back-link" onclick="goto('s-shop')">← 一覧に戻る</span>
+    <div class="bar-logo">LOTUS <span>STORE</span></div>
+  </div>
+  <div class="detail-img" id="d-img"><img id="d-img-el" src="" alt=""></div>
+  <div class="detail-body">
+    <div class="d-name" id="d-name"></div>
+    <div class="d-price" id="d-price"></div>
+    <span class="sz-label" id="sz-label-el">サイズを選ぶ</span>
+    <div class="sz-row" id="d-sizes"></div>
+    <span class="sz-label">数量</span>
+    <div class="qty-wrap">
+      <button class="q-btn" onclick="adjQty(-1)">−</button>
+      <span class="q-num" id="d-qty">1</span>
+      <button class="q-btn" onclick="adjQty(1)">＋</button>
+    </div>
+    <button class="add-btn" id="add-btn" onclick="addToCart()">カートに追加</button>
+    <div class="need-sz" id="need-sz">サイズを選んでください</div>
+  </div>
+</div>
+
+<!-- ⑤ カート -->
+<div class="screen" id="s-cart">
+  <div class="top-bar">
+    <span class="back-link" onclick="goto('s-shop')">← 続けて選ぶ</span>
+    <div class="bar-logo">LOTUS <span>STORE</span></div>
+  </div>
+  <div class="cart-body" id="cart-body"></div>
+  <div class="cart-foot">
+    <div class="total-row"><span>合計（税込）</span><span id="cart-total">¥0</span></div>
+    <button class="btn-navy" onclick="checkout()">注文を確定する</button>
+  </div>
+</div>
+
+<!-- ⑥ 注文完了 -->
+<div class="screen" id="s-confirm">
+  <div class="top-bar"><div class="bar-logo">LOTUS <span>STORE</span></div></div>
+  <div class="confirm-body">
+    <div class="confirm-hero">
+      <div class="ch-tag">Order Confirmed</div>
+      <div class="ch-title">注文が完了しました</div>
+      <div class="ch-num" id="c-ordnum">#LOTUS-0001</div>
+    </div>
+    <div class="conf-sec">
+      <div class="cs-title">注文内容</div>
+      <div id="c-items"></div>
+    </div>
+    <div class="conf-sec">
+      <div class="cs-title">納品・請求</div>
+      <div class="cs-row"><span class="label">お名前</span><span class="val" id="c-name"></span></div>
+      <div class="cs-row"><span class="label">請求先メール</span><span class="val" id="c-email"></span></div>
+    </div>
+    <div class="info-box" id="c-payinfo"></div>
+    <button class="pay-link-btn" id="c-paybtn" style="display:none;"
+      onclick="alert('本番環境ではSquare Payment Linkに遷移します')">
+      今すぐカードで支払う →
+    </button>
+    <button class="btn-outline" onclick="backHome()">トップに戻る</button>
+  </div>
+</div>
+
+<script>
+const TEAM_CODE = 'LOTUS';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxsRE2xNtsptRpIKaj1uDaTz_h1eMWgj7lZiuokugpdzrhoosxlF24ftTYTIu21PAWVZg/exec';
+
+// 商品マスタ（本番はGoogleスプレッドシートから取得）
+const PRODUCTS = [
+  {id:1, name:'練習用メッシュ　シロ', price:4900,
+   sizes:['S','M','L','XL','2XL'],
+   img:'https://drive.google.com/thumbnail?id=1lYjPslOOjDkRqSij_H2waD-MywRMqWBa&sz=w400'},
+  {id:2, name:'練習用メッシュ　アカ', price:4900,
+   sizes:['S','M','L','XL','2XL'],
+   img:'https://drive.google.com/thumbnail?id=1Ykfc_OcC_KST6-iPwISK_VJXttRWbBU3&sz=w400'},
+  {id:3, name:'練習用パンツ', price:4800,
+   sizes:['XS','S','M','L','XL','2XL','3XL'],
+   img:'https://drive.google.com/thumbnail?id=1p2_SRsHSDX8Jlwfyykftszy5OOpB03Vi&sz=w400'},
+  {id:4, name:'試合用パンツ', price:6500,
+   sizes:['XS','S','M','L','XL','2XL','3XL'],
+   img:'https://drive.google.com/thumbnail?id=1iHhcbu0eIL1Z-yxaqIfWv-CuKm2dqJGx&sz=w400'},
+  {id:5, name:'ソックス', price:1100,
+   sizes:['フリーサイズ'],
+   img:'https://drive.google.com/thumbnail?id=1owB32t2VsG2YG7LmsvtWlF_tydtkzRSx&sz=w400'},
+  {id:6, name:'ポロシャツ', price:2800,
+   sizes:['S','M','L','LL','3L','4L','5L'],
+   img:'https://drive.google.com/thumbnail?id=1w1f3XIiDX5Eo-CwLHTesWJRtw4nrVl3T&sz=w400'},
+  {id:7, name:'短パン', price:2600,
+   sizes:['S','M','L','LL','3L','4L','5L'],
+   img:'https://drive.google.com/thumbnail?id=1UdGexr2ABzBqXWIdlU-YRi7_rdmoNBC3&sz=w400'},
+  {id:8, name:'セットアップ　上', price:4500,
+   sizes:['S','M','L','XL','2XL','3XL','4XL','5XL','6XL'],
+   img:'https://drive.google.com/thumbnail?id=1AQbnuokYiSKQoAyxx-yF6ylbEZpvvfAr&sz=w400'},
+  {id:9, name:'セットアップ　下', price:4500,
+   sizes:['S','M','L','XL','2XL','3XL','4XL','5XL','6XL'],
+   img:'https://drive.google.com/thumbnail?id=1j4W1gEb9t6uQ_uMXr1AEL6bYcmgf9o5T&sz=w400'},
+];
+
+let cart = [], selProduct = null, selSize = null, qty = 1, payMethod = 'card';
+let profile = null;
+try { profile = JSON.parse(localStorage.getItem('lotus_v1_profile') || 'null'); } catch(e){}
+
+function goto(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function checkCode() {
+  const v = document.getElementById('code-in').value.trim().toUpperCase();
+  if (v === TEAM_CODE) {
+    document.getElementById('a-err').innerHTML = '&nbsp;';
+    if (profile) { goto('s-shop'); loadShop(); }
+    else goto('s-profile');
+  } else {
+    document.getElementById('a-err').textContent = 'コードが違います';
+  }
+}
+
+function selPay(m) {
+  payMethod = m;
+  document.getElementById('po-card').classList.toggle('sel', m === 'card');
+  document.getElementById('po-bank').classList.toggle('sel', m === 'bank');
+}
+
+function saveProfile() {
+  const n = document.getElementById('p-name').value.trim();
+  const g = document.getElementById('p-grade').value.trim();
+  const num = document.getElementById('p-number').value.trim();
+  const e = document.getElementById('p-email').value.trim();
+  if (!n || !e) { alert('名前とメールアドレスを入力してください'); return; }
+  if (!/\S+@\S+\.\S+/.test(e)) { alert('メールアドレスを確認してください'); return; }
+  profile = { name: n, grade: g, number: num, email: e, pay: payMethod };
+  try { localStorage.setItem('lotus_v1_profile', JSON.stringify(profile)); } catch(e) {}
+  goto('s-shop'); loadShop();
+}
+
+function loadShop() {
+  document.getElementById('disp-name').textContent = profile.name;
+  document.getElementById('p-name').value = profile.name;
+  document.getElementById('p-grade').value = profile.grade || '';
+  document.getElementById('p-number').value = profile.number || '';
+  document.getElementById('p-email').value = profile.email;
+  selPay(profile.pay || 'card');
+  updateBadge();
+  document.getElementById('products-list').innerHTML = PRODUCTS.map(p => `
+    <div class="p-card" onclick="openDetail(${p.id})">
+      <div class="p-thumb">
+        <img src="${p.img}" alt="${p.name}" loading="lazy"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="no-img" style="display:none;">👕</div>
+      </div>
+      <div class="p-body">
+        <div class="p-name">${p.name}</div>
+        <div class="p-sizes">${p.sizes.join(' / ')}</div>
+        <div class="p-footer">
+          <div class="p-price">¥${p.price.toLocaleString()}</div>
+          <div class="p-arrow">›</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openDetail(id) {
+  selProduct = PRODUCTS.find(p => p.id === id);
+  selSize = null; qty = 1;
+  document.getElementById('d-img-el').src = selProduct.img;
+  document.getElementById('d-name').textContent = selProduct.name;
+  document.getElementById('d-price').textContent = '¥' + selProduct.price.toLocaleString() + '（税込）';
+  document.getElementById('d-qty').textContent = 1;
+  document.getElementById('need-sz').style.display = 'none';
+
+  // サイズが1種類（フリーサイズ）の場合は自動選択
+  const sizes = selProduct.sizes;
+  if (sizes.length === 1 && sizes[0] === 'フリーサイズ') {
+    selSize = 'フリーサイズ';
+    document.getElementById('sz-label-el').style.display = 'none';
+    document.getElementById('d-sizes').innerHTML = `<div style="font-size:13px;color:var(--muted);">フリーサイズ</div>`;
+  } else {
+    document.getElementById('sz-label-el').style.display = 'block';
+    document.getElementById('d-sizes').innerHTML = sizes.map(s =>
+      `<button class="sz-btn" onclick="selSz(this,'${s}')">${s}</button>`).join('');
+  }
+  goto('s-detail');
+}
+
+function selSz(el, s) {
+  document.querySelectorAll('.sz-btn').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel'); selSize = s;
+  document.getElementById('need-sz').style.display = 'none';
+}
+
+function adjQty(d) {
+  qty = Math.max(1, qty + d);
+  document.getElementById('d-qty').textContent = qty;
+}
+
+function addToCart() {
+  if (!selSize) { document.getElementById('need-sz').style.display = 'block'; return; }
+  const ex = cart.find(i => i.id === selProduct.id && i.size === selSize);
+  if (ex) ex.qty += qty;
+  else cart.push({ ...selProduct, size: selSize, qty: qty });
+  updateBadge(); goto('s-shop'); loadShop();
+}
+
+function updateBadge() {
+  const t = cart.reduce((a, i) => a + i.qty, 0);
+  document.getElementById('cart-badge').textContent = t;
+}
+
+function showCart() {
+  const body = document.getElementById('cart-body');
+  if (!cart.length) {
+    body.innerHTML = `<div class="empty-cart"><div class="empty-icon">🛒</div><div class="empty-txt">カートは空です</div></div>`;
+    goto('s-cart'); return;
+  }
+  body.innerHTML = cart.map((item, idx) => `
+    <div class="c-item">
+      <div class="c-thumb"><img src="${item.img}" alt="${item.name}" loading="lazy"></div>
+      <div class="c-info">
+        <div class="c-name">${item.name}</div>
+        <div class="c-sub">サイズ：${item.size}　×${item.qty}</div>
+      </div>
+      <div class="c-right">
+        <div class="c-price">¥${(item.price * item.qty).toLocaleString()}</div>
+        <button class="c-del" onclick="removeItem(${idx})">✕</button>
+      </div>
+    </div>`).join('');
+  const total = cart.reduce((a, i) => a + i.price * i.qty, 0);
+  document.getElementById('cart-total').textContent = '¥' + total.toLocaleString();
+  goto('s-cart');
+}
+
+function removeItem(idx) {
+  cart.splice(idx, 1); updateBadge(); showCart();
+}
+
+async function checkout() {
+  if (!cart.length) return;
+
+  // 送信中UI
+  const btn = document.querySelector('#s-cart .btn-navy');
+  btn.textContent = '送信中...';
+  btn.disabled = true;
+
+  const ordNum = '#LOTUS-' + String(Date.now()).slice(-4);
+  const total  = cart.reduce((a, i) => a + i.price * i.qty, 0);
+  const cartData = cart.map(i => ({
+    name: i.name, size: i.size, qty: i.qty, price: i.price
+  }));
+
+  // GASに注文データを送信
+  try {
+    await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ ordNum, profile, cart: cartData, total }),
+    });
+  } catch(err) {
+    console.warn('GAS送信エラー:', err);
+  }
+
+  // 完了画面を構築
+  document.getElementById('c-ordnum').textContent = ordNum;
+  const nameLabel = profile.grade || profile.number
+    ? `${profile.name}（${profile.grade ? profile.grade+'期' : ''}${profile.number ? ' #'+profile.number : ''}）`
+    : profile.name;
+  document.getElementById('c-name').textContent = nameLabel;
+  document.getElementById('c-email').textContent = profile.email;
+
+  document.getElementById('c-items').innerHTML =
+    cart.map(i => `
+      <div class="cs-row">
+        <span class="label">${i.name}（${i.size}）×${i.qty}</span>
+        <span class="val">¥${(i.price * i.qty).toLocaleString()}</span>
+      </div>`).join('') +
+    `<div class="cs-row" style="font-weight:800;font-size:15px;">
+      <span class="label">合計</span>
+      <span class="val">¥${total.toLocaleString()}</span>
+    </div>`;
+
+  const infoBox = document.getElementById('c-payinfo');
+  const paybtn  = document.getElementById('c-paybtn');
+
+  if (profile.pay === 'card') {
+    infoBox.className = 'info-box card';
+    infoBox.textContent =
+      `${profile.email} に注文確認メールをお送りしました。\n\nSquare決済リンクは別途Grub SPORTよりお送りします。`;
+    paybtn.style.display = 'none';
+  } else {
+    infoBox.className = 'info-box bank';
+    infoBox.textContent =
+      `${profile.email} に振込先案内メールをお送りしました。\n\n振込確認後、次回練習日に納品します。`;
+    paybtn.style.display = 'none';
+  }
+
+  btn.textContent = '注文を確定する';
+  btn.disabled = false;
+  cart = []; updateBadge(); goto('s-confirm');
+}
+
+function backHome() { goto('s-shop'); loadShop(); }
+
+document.getElementById('code-in').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkCode();
+});
+
+// 既登録ユーザー向けヒント
+if (profile) {
+  document.getElementById('code-in').placeholder = '（前回入力済み）';
+}
+</script>
+</body>
+</html>
