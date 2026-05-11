@@ -471,20 +471,23 @@ async function checkout() {
   btn.textContent = '送信中...';
   btn.disabled = true;
 
-  const ordNum = '#LOTUS-' + String(Date.now()).slice(-4);
   const total  = cart.reduce((a, i) => a + i.price * i.qty, 0);
   const cartData = cart.map(i => ({
     name: i.name, size: i.size, qty: i.qty, price: i.price
   }));
 
-  // GASに注文データを送信
+  // GASに注文データを送信・注文番号を受け取る
+  let ordNum = '処理中...';
   try {
-    await fetch(GAS_URL, {
+    const res = await fetch(GAS_URL, {
       method: 'POST',
-      body: JSON.stringify({ ordNum, profile, cart: cartData, total }),
+      body: JSON.stringify({ profile, cart: cartData, total }),
     });
+    const json = await res.json();
+    if (json.ordNum) ordNum = json.ordNum;
   } catch(err) {
     console.warn('GAS送信エラー:', err);
+    ordNum = 'エラー';
   }
 
   // 完了画面を構築
