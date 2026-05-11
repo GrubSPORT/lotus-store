@@ -71,7 +71,7 @@ body{max-width:430px;margin:0 auto;}
 .p-card{background:var(--card);border:0.5px solid var(--border);border-radius:14px;overflow:hidden;display:flex;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform 0.1s;}
 .p-card:active{transform:scale(0.98);}
 .p-thumb{width:96px;min-height:96px;flex-shrink:0;overflow:hidden;position:relative;background:#E8E6E0;}
-.p-thumb img{width:100%;height:100%;object-fit:cover;}
+.p-thumb img{width:100%;height:100%;object-fit:contain;background:#E8E6E0;}
 .p-thumb .no-img{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;background:#E0DEDA;}
 .p-body{padding:14px;flex:1;display:flex;flex-direction:column;justify-content:center;}
 .p-name{font-size:14px;font-weight:700;line-height:1.3;}
@@ -82,8 +82,8 @@ body{max-width:430px;margin:0 auto;}
 
 /* ─── DETAIL ─── */
 #s-detail{background:var(--bg);}
-.detail-img{height:220px;background:#E8E6E0;flex-shrink:0;overflow:hidden;position:relative;}
-.detail-img img{width:100%;height:100%;object-fit:cover;}
+.detail-img{height:280px;background:#E8E6E0;flex-shrink:0;overflow:hidden;position:relative;}
+.detail-img img{width:100%;height:100%;object-fit:contain;background:#E8E6E0;}
 .detail-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 18px;}
 .d-name{font-size:22px;font-weight:800;margin-bottom:5px;line-height:1.3;}
 .d-price{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:24px;}
@@ -106,7 +106,7 @@ body{max-width:430px;margin:0 auto;}
 .empty-txt{font-size:15px;}
 .c-item{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
 .c-thumb{width:56px;height:56px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#E8E6E0;}
-.c-thumb img{width:100%;height:100%;object-fit:cover;}
+.c-thumb img{width:100%;height:100%;object-fit:contain;background:#E8E6E0;}
 .c-info{flex:1;min-width:0;}
 .c-name{font-size:14px;font-weight:700;line-height:1.3;}
 .c-sub{font-size:12px;color:var(--muted);margin-top:3px;}
