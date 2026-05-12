@@ -515,12 +515,12 @@ async function checkout() {
   if (profile.pay === 'card') {
     infoBox.className = 'info-box card';
     infoBox.textContent =
-      `${profile.email} に注文確認メールをお送りしました。\n\nSquare決済リンクは別途Grub SPORTよりお送りします。`;
+      `${profile.email} に注文確認メールをお送りしました。\n\nSquare決済リンクは別途Grub SPORTよりSquare経由でお送りします。`;
     paybtn.style.display = 'none';
   } else {
     infoBox.className = 'info-box bank';
     infoBox.textContent =
-      `${profile.email} に振込先案内メールをお送りしました。\n\n振込確認後、次回練習日に納品します。`;
+      `${profile.email} に振込先案内メールをお送りしました。`;
     paybtn.style.display = 'none';
   }
 
