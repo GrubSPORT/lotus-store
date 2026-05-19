@@ -496,7 +496,7 @@ async function checkout() {
   }));
 
   // GASに注文データを送信・注文番号を受け取る
-  let ordNum = '処理中...';
+  let ordNum = '受付完了';
   try {
     const res = await fetch(GAS_URL, {
       method: 'POST',
@@ -534,12 +534,12 @@ async function checkout() {
   if (profile.pay === 'card') {
     infoBox.className = 'info-box card';
     infoBox.textContent =
-      `ご注文を受け付けました。\n\n請求書PDF・Square決済リンクは数分以内に\n${profile.email}\nへ自動送信されます。\n\n※システム処理のため数分かかります。`;
+      `ご注文を受け付けました。\nこのページは閉じて構いません。\n\n請求書PDF・Square決済リンクは\n数分以内に ${profile.email} へ\n自動送信されます。`;
     paybtn.style.display = 'none';
   } else {
     infoBox.className = 'info-box bank';
     infoBox.textContent =
-      `ご注文を受け付けました。\n\n請求書PDF・振込先案内は数分以内に\n${profile.email}\nへ自動送信されます。\n\n※システム処理のため数分かかります。`;
+      `ご注文を受け付けました。\nこのページは閉じて構いません。\n\n請求書PDF・振込先案内は\n数分以内に ${profile.email} へ\n自動送信されます。`;
     paybtn.style.display = 'none';
   }
 
