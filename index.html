@@ -236,6 +236,14 @@ body{max-width:430px;margin:0 auto;}
   <div class="detail-body">
     <div class="d-name" id="d-name"></div>
     <div class="d-price" id="d-price"></div>
+    <div id="jersey-num-wrap" style="display:none;margin-bottom:20px;">
+      <span class="sz-label">プリント背番号</span>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <input class="f-input" id="d-jersey-num" type="number" min="0" max="99"
+          placeholder="例：21" style="width:120px;font-size:18px;text-align:center;padding:10px;">
+        <span style="font-size:12px;color:var(--muted);">ユニフォームにプリントされます</span>
+      </div>
+    </div>
     <span class="sz-label" id="sz-label-el">サイズを選ぶ</span>
     <div class="sz-row" id="d-sizes"></div>
     <span class="sz-label">数量</span>
@@ -397,6 +405,10 @@ function openDetail(id) {
   document.getElementById('d-price').textContent = '¥' + selProduct.price.toLocaleString() + '（税込）';
   document.getElementById('d-qty').textContent = 1;
   document.getElementById('need-sz').style.display = 'none';
+  document.getElementById('d-jersey-num').value = '';
+  // メッシュシロ・アカ（ID:1,2）のみ背番号入力欄を表示
+  const needsJerseyNum = [1, 2].includes(selProduct.id);
+  document.getElementById('jersey-num-wrap').style.display = needsJerseyNum ? 'block' : 'none';
 
   // サイズが1種類（フリーサイズ）の場合は自動選択
   const sizes = selProduct.sizes;
@@ -425,9 +437,15 @@ function adjQty(d) {
 
 function addToCart() {
   if (!selSize) { document.getElementById('need-sz').style.display = 'block'; return; }
-  const ex = cart.find(i => i.id === selProduct.id && i.size === selSize);
+  const needsJerseyNum = [1, 2].includes(selProduct.id);
+  const jerseyNum = document.getElementById('d-jersey-num').value.trim();
+  if (needsJerseyNum && !jerseyNum) {
+    alert('背番号を入力してください。');
+    return;
+  }
+  const ex = cart.find(i => i.id === selProduct.id && i.size === selSize && i.jerseyNum === jerseyNum);
   if (ex) ex.qty += qty;
-  else cart.push({ ...selProduct, size: selSize, qty: qty });
+  else cart.push({ ...selProduct, size: selSize, qty: qty, jerseyNum: jerseyNum || '' });
   updateBadge(); goto('s-shop'); loadShop();
 }
 
@@ -447,7 +465,7 @@ function showCart() {
       <div class="c-thumb"><img src="${item.img}" alt="${item.name}" loading="lazy"></div>
       <div class="c-info">
         <div class="c-name">${item.name}</div>
-        <div class="c-sub">サイズ：${item.size}　×${item.qty}</div>
+        <div class="c-sub">サイズ：${item.size}${item.jerseyNum ? '　背番号：' + item.jerseyNum : ''}　×${item.qty}</div>
       </div>
       <div class="c-right">
         <div class="c-price">¥${(item.price * item.qty).toLocaleString()}</div>
@@ -473,7 +491,8 @@ async function checkout() {
 
   const total  = cart.reduce((a, i) => a + i.price * i.qty, 0);
   const cartData = cart.map(i => ({
-    name: i.name, size: i.size, qty: i.qty, price: i.price
+    name: i.name, size: i.size, qty: i.qty, price: i.price,
+    jerseyNum: i.jerseyNum || ''
   }));
 
   // GASに注文データを送信・注文番号を受け取る
@@ -501,7 +520,7 @@ async function checkout() {
   document.getElementById('c-items').innerHTML =
     cart.map(i => `
       <div class="cs-row">
-        <span class="label">${i.name}（${i.size}）×${i.qty}</span>
+        <span class="label">${i.name}（${i.size}${i.jerseyNum ? '　背番号：' + i.jerseyNum : ''}）×${i.qty}</span>
         <span class="val">¥${(i.price * i.qty).toLocaleString()}</span>
       </div>`).join('') +
     `<div class="cs-row" style="font-weight:800;font-size:15px;">
@@ -515,12 +534,12 @@ async function checkout() {
   if (profile.pay === 'card') {
     infoBox.className = 'info-box card';
     infoBox.textContent =
-      `${profile.email} に注文確認メールをお送りしました。\n\nSquare決済リンクは別途Grub SPORTよりSquare経由でお送りします。`;
+      `${profile.email} に注文確認メールをお送りしました。\n\nSquare決済リンクは別途Grub SPORTよりお送りします。`;
     paybtn.style.display = 'none';
   } else {
     infoBox.className = 'info-box bank';
     infoBox.textContent =
-      `${profile.email} に振込先案内メールをお送りしました。`;
+      `${profile.email} に振込先案内メールをお送りしました。\n\n振込確認後、次回練習日に納品します。`;
     paybtn.style.display = 'none';
   }
 
