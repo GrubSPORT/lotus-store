@@ -237,11 +237,20 @@ body{max-width:430px;margin:0 auto;}
     <div class="d-name" id="d-name"></div>
     <div class="d-price" id="d-price"></div>
     <div id="jersey-num-wrap" style="display:none;margin-bottom:20px;">
-      <span class="sz-label">プリント背番号</span>
+      <span class="sz-label">プリント背番号 <span style="color:#C0141E;font-size:11px;">必須</span></span>
       <div style="display:flex;align-items:center;gap:10px;">
         <input class="f-input" id="d-jersey-num" type="number" min="0" max="99"
           placeholder="例：21" style="width:120px;font-size:18px;text-align:center;padding:10px;">
         <span style="font-size:12px;color:var(--muted);">ユニフォームにプリントされます</span>
+      </div>
+    </div>
+    <div id="roman-name-wrap" style="display:none;margin-bottom:20px;">
+      <span class="sz-label">プリント名前（ローマ字） <span style="color:#C0141E;font-size:11px;">必須</span></span>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <input class="f-input" id="d-roman-name" type="text" maxlength="20"
+          placeholder="例：M.Kubota"
+          style="width:180px;font-size:18px;text-align:center;padding:10px;letter-spacing:0.05em;">
+        <span style="font-size:11px;color:var(--muted);">形式：名前の頭文字（大文字）.苗字（頭文字大文字）<br>例）Masao Kubota → M.Kubota</span>
       </div>
     </div>
     <span class="sz-label" id="sz-label-el">サイズを選ぶ</span>
@@ -406,9 +415,13 @@ function openDetail(id) {
   document.getElementById('d-qty').textContent = 1;
   document.getElementById('need-sz').style.display = 'none';
   document.getElementById('d-jersey-num').value = '';
+  document.getElementById('d-roman-name').value = '';
   // メッシュシロ・アカ（ID:1,2）のみ背番号入力欄を表示
   const needsJerseyNum = [1, 2].includes(selProduct.id);
   document.getElementById('jersey-num-wrap').style.display = needsJerseyNum ? 'block' : 'none';
+  // ポロシャツ（ID:6）のみローマ字名入力欄を表示
+  const needsRomanName = selProduct.id === 6;
+  document.getElementById('roman-name-wrap').style.display = needsRomanName ? 'block' : 'none';
 
   // サイズが1種類（フリーサイズ）の場合は自動選択
   const sizes = selProduct.sizes;
@@ -443,9 +456,22 @@ function addToCart() {
     alert('背番号を入力してください。');
     return;
   }
-  const ex = cart.find(i => i.id === selProduct.id && i.size === selSize && i.jerseyNum === jerseyNum);
+  const needsRomanName = selProduct.id === 6;
+  const romanName = document.getElementById('d-roman-name').value.trim();
+  if (needsRomanName) {
+    if (!romanName) {
+      alert('プリント名前（ローマ字）を入力してください。');
+      return;
+    }
+    const romanPattern = /^[A-Z]\.[A-Z][a-z]+$/;
+    if (!romanPattern.test(romanName)) {
+      alert('形式が正しくありません。\n例：M.Kubota\n（名前の頭文字.苗字）で入力してください。');
+      return;
+    }
+  }
+  const ex = cart.find(i => i.id === selProduct.id && i.size === selSize && i.jerseyNum === jerseyNum && i.romanName === romanName);
   if (ex) ex.qty += qty;
-  else cart.push({ ...selProduct, size: selSize, qty: qty, jerseyNum: jerseyNum || '' });
+  else cart.push({ ...selProduct, size: selSize, qty: qty, jerseyNum: jerseyNum || '', romanName: romanName || '' });
   updateBadge(); goto('s-shop'); loadShop();
 }
 
@@ -465,7 +491,7 @@ function showCart() {
       <div class="c-thumb"><img src="${item.img}" alt="${item.name}" loading="lazy"></div>
       <div class="c-info">
         <div class="c-name">${item.name}</div>
-        <div class="c-sub">サイズ：${item.size}${item.jerseyNum ? '　背番号：' + item.jerseyNum : ''}　×${item.qty}</div>
+        <div class="c-sub">サイズ：${item.size}${item.jerseyNum ? '　背番号：' + item.jerseyNum : ''}${item.romanName ? '　名前：' + item.romanName : ''}　×${item.qty}</div>
       </div>
       <div class="c-right">
         <div class="c-price">¥${(item.price * item.qty).toLocaleString()}</div>
@@ -492,7 +518,8 @@ async function checkout() {
   const total  = cart.reduce((a, i) => a + i.price * i.qty, 0);
   const cartData = cart.map(i => ({
     name: i.name, size: i.size, qty: i.qty, price: i.price,
-    jerseyNum: i.jerseyNum || ''
+    jerseyNum: i.jerseyNum || '',
+    romanName: i.romanName || ''
   }));
 
   // GASに注文データを送信・注文番号を受け取る
@@ -520,7 +547,7 @@ async function checkout() {
   document.getElementById('c-items').innerHTML =
     cart.map(i => `
       <div class="cs-row">
-        <span class="label">${i.name}（${i.size}${i.jerseyNum ? '　背番号：' + i.jerseyNum : ''}）×${i.qty}</span>
+        <span class="label">${i.name}（${i.size}${i.jerseyNum ? '　背番号：' + i.jerseyNum : ''}${i.romanName ? '　名前：' + i.romanName : ''}）×${i.qty}</span>
         <span class="val">¥${(i.price * i.qty).toLocaleString()}</span>
       </div>`).join('') +
     `<div class="cs-row" style="font-weight:800;font-size:15px;">
