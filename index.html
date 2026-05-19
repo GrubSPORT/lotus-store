@@ -457,10 +457,10 @@ function addToCart() {
     return;
   }
   const needsRomanName = selProduct.id === 6;
-  const romanName = document.getElementById('d-roman-name').value.trim();
+  const romanName = needsRomanName ? document.getElementById('d-roman-name').value.trim() : '';
   if (needsRomanName) {
     if (!romanName) {
-      alert('プリント名前（ローマ字）を入力してください。');
+      alert('名入れ刺繍（ローマ字）を入力してください。');
       return;
     }
     const romanPattern = /^[A-Z]\.[A-Z][a-z]+$/;
@@ -491,7 +491,7 @@ function showCart() {
       <div class="c-thumb"><img src="${item.img}" alt="${item.name}" loading="lazy"></div>
       <div class="c-info">
         <div class="c-name">${item.name}</div>
-        <div class="c-sub">サイズ：${item.size}${item.jerseyNum ? '　背番号：' + item.jerseyNum : ''}${item.romanName ? '　名前：' + item.romanName : ''}　×${item.qty}</div>
+        <div class="c-sub">サイズ：${item.size}${item.jerseyNum ? '　背番号：' + item.jerseyNum : ''}${item.romanName ? '　刺繍名：' + item.romanName : ''}　×${item.qty}</div>
       </div>
       <div class="c-right">
         <div class="c-price">¥${(item.price * item.qty).toLocaleString()}</div>
