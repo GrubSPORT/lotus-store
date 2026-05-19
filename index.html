@@ -248,9 +248,9 @@ body{max-width:430px;margin:0 auto;}
       <span class="sz-label">プリント名前（ローマ字） <span style="color:#C0141E;font-size:11px;">必須</span></span>
       <div style="display:flex;flex-direction:column;gap:6px;">
         <input class="f-input" id="d-roman-name" type="text" maxlength="20"
-          placeholder="例：M.Kubota"
+          placeholder="例：T.kobayashi"
           style="width:180px;font-size:18px;text-align:center;padding:10px;letter-spacing:0.05em;">
-        <span style="font-size:11px;color:var(--muted);">形式：名前の頭文字（大文字）.苗字（頭文字大文字）<br>例）Masao Kubota → M.Kubota</span>
+        <span style="font-size:11px;color:var(--muted);">形式：名前の頭文字（大文字）.苗字（頭文字大文字）<br>例）Takashi Kobayashi → T.Kobayashi </span>
       </div>
     </div>
     <span class="sz-label" id="sz-label-el">サイズを選ぶ</span>
@@ -460,12 +460,12 @@ function addToCart() {
   const romanName = document.getElementById('d-roman-name').value.trim();
   if (needsRomanName) {
     if (!romanName) {
-      alert('プリント名前（ローマ字）を入力してください。');
+      alert('名前（ローマ字）を入力してください。');
       return;
     }
     const romanPattern = /^[A-Z]\.[A-Z][a-z]+$/;
     if (!romanPattern.test(romanName)) {
-      alert('形式が正しくありません。\n例：M.Kubota\n（名前の頭文字.苗字）で入力してください。');
+      alert('形式が正しくありません。\n例：T.Kobayashi\n（名前の頭文字.苗字）で入力してください。');
       return;
     }
   }
