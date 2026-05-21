@@ -338,6 +338,18 @@ function goto(id) {
 function initApp() {
   // チームロゴを全画面に設定
   document.querySelectorAll('.top-logo, .hero-logo').forEach(img => { img.src = TEAM_LOGO_URL; });
+
+  // ?reset=1 でlocalStorageをクリアしてプロフィール画面へ
+  if (location.search.includes('reset=1')) {
+    localStorage.removeItem('lotus_v1_profile');
+    localStorage.removeItem(PRODUCTS_CACHE_KEY);
+    profile = null;
+    // URLからresetパラメータを除去（履歴を汚さない）
+    history.replaceState(null, '', location.pathname);
+    goto('s-profile');
+    return;
+  }
+
   // profile はスクリプト冒頭で localStorage から読み込み済み
   if (profile && profile.name && profile.email) {
     goto('s-shop');
