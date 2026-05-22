@@ -17,7 +17,7 @@ body{max-width:430px;margin:0 auto;}
 .screen.active{display:flex;}
 
 /* ─── COMMON HEADER ─── */
-.top-bar{background:var(--navy);padding:15px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50;}
+.top-bar{background:#0D1B2A;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50;}
 .top-logo{height:32px;width:auto;object-fit:contain;flex-shrink:0;}
 .profile-hero{background:#0D1B2A;padding:36px 20px 28px;display:flex;flex-direction:column;align-items:center;gap:12px;}
 .hero-logo{height:80px;width:auto;object-fit:contain;}
@@ -138,6 +138,9 @@ body{max-width:430px;margin:0 auto;}
 </style>
 </head>
 <body>
+
+<!-- TEST MODE バッジ（?test=1 のときだけJSで表示） -->
+<div id="test-badge" style="display:none;position:fixed;top:8px;right:8px;background:#FF6B00;color:#fff;padding:4px 10px;border-radius:4px;font-size:10px;font-weight:bold;z-index:9999;letter-spacing:0.15em;box-shadow:0 2px 6px rgba(0,0,0,0.3);">TEST MODE</div>
 
 <!-- ① プロフィール登録 -->
 <div class="screen active" id="s-profile">
@@ -305,9 +308,14 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbxsRE2xNtsptRpIKaj1uDaT
 // 商品マスタ（本番はGoogleスプレッドシートから取得）
 let products = []; // GASから動的取得
 
+// ─── テストモード判定（?test=1 でlocalStorageを使わない検証用URL）───
+const TEST_MODE = location.search.includes('test=1');
+
 let cart = [], selProduct = null, selSize = null, qty = 1, payMethod = 'card', currentImageIdx = 0;
 let profile = null;
-try { profile = JSON.parse(localStorage.getItem('lotus_v1_profile') || 'null'); } catch(e){}
+if (!TEST_MODE) {
+  try { profile = JSON.parse(localStorage.getItem('lotus_v1_profile') || 'null'); } catch(e){}
+}
 
 function goto(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -319,7 +327,21 @@ function initApp() {
   // チームロゴを全画面に設定
   document.querySelectorAll('.top-logo, .hero-logo').forEach(img => { img.src = TEAM_LOGO_URL; });
 
-  // ?reset=1 でlocalStorageをクリアしてプロフィール画面へ
+  // ─── TEST MODE: 毎回プロフィール画面から始まり、localStorageを汚染しない ───
+  if (TEST_MODE) {
+    try {
+      localStorage.removeItem('lotus_v1_profile');
+      localStorage.removeItem(PRODUCTS_CACHE_KEY);
+    } catch(e) {}
+    profile = null;
+    const badge = document.getElementById('test-badge');
+    if (badge) badge.style.display = 'block';
+    // ?test=1 はURLから削除しない（リロード時もテストモード継続のため）
+    goto('s-profile');
+    return;
+  }
+
+  // ?reset=1 で1回だけlocalStorageをクリアしてプロフィール画面へ
   if (location.search.includes('reset=1')) {
     localStorage.removeItem('lotus_v1_profile');
     localStorage.removeItem(PRODUCTS_CACHE_KEY);
@@ -352,7 +374,9 @@ function saveProfile() {
   if (!n || !e) { alert('名前とメールアドレスを入力してください'); return; }
   if (!/\S+@\S+\.\S+/.test(e)) { alert('メールアドレスを確認してください'); return; }
   profile = { name: n, grade: g, number: num, email: e, pay: payMethod };
-  try { localStorage.setItem('lotus_v1_profile', JSON.stringify(profile)); } catch(e) {}
+  if (!TEST_MODE) {
+    try { localStorage.setItem('lotus_v1_profile', JSON.stringify(profile)); } catch(e) {}
+  }
   goto('s-shop'); loadShop();
 }
 
@@ -480,6 +504,7 @@ const PRODUCTS_CACHE_KEY = 'grubsport_products_' + TEAM_CODE;
 const PRODUCTS_CACHE_TTL = 24 * 60 * 60 * 1000; // 24時間
 
 function getCachedProducts() {
+  if (TEST_MODE) return null;  // テストは常に最新を取得
   try {
     const raw = localStorage.getItem(PRODUCTS_CACHE_KEY);
     if (!raw) return null;
@@ -489,6 +514,7 @@ function getCachedProducts() {
   } catch(e) { return null; }
 }
 function setCachedProducts(data) {
+  if (TEST_MODE) return;  // テストはキャッシュに書き込まない
   try {
     localStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
   } catch(e) {}
