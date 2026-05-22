@@ -507,10 +507,14 @@ function adjQty(d) {
 const PRODUCTS_CACHE_KEY = 'grubsport_products_' + TEAM_CODE;
 const PRODUCTS_CACHE_TTL = 24 * 60 * 60 * 1000; // 24時間
 
+// テストモード時は sessionStorage（タブを閉じるまで有効）に切替
+// localStorage を汚染せず、同じセッション内では2回目以降の商品一覧が即時表示される
+function _cacheStore() {
+  return TEST_MODE ? sessionStorage : localStorage;
+}
 function getCachedProducts() {
-  if (TEST_MODE) return null;  // テストは常に最新を取得
   try {
-    const raw = localStorage.getItem(PRODUCTS_CACHE_KEY);
+    const raw = _cacheStore().getItem(PRODUCTS_CACHE_KEY);
     if (!raw) return null;
     const { data, ts } = JSON.parse(raw);
     if (Date.now() - ts > PRODUCTS_CACHE_TTL) return null;
@@ -518,9 +522,8 @@ function getCachedProducts() {
   } catch(e) { return null; }
 }
 function setCachedProducts(data) {
-  if (TEST_MODE) return;  // テストはキャッシュに書き込まない
   try {
-    localStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
+    _cacheStore().setItem(PRODUCTS_CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
   } catch(e) {}
 }
 
