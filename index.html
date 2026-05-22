@@ -28,7 +28,10 @@ body{max-width:430px;margin:0 auto;}
 .bar-logo span{color:rgba(255,255,255,0.7);}
 .bar-cart{background:rgba(255,255,255,0.95);border:none;border-radius:8px;padding:8px 14px;color:var(--navy);cursor:pointer;font-size:14px;font-weight:700;display:flex;align-items:center;gap:7px;}
 .badge{background:var(--navy);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.back-link{font-size:13px;font-weight:600;color:var(--gold);cursor:pointer;}
+.back-link{font-size:14px;font-weight:700;color:#fff;background:rgba(255,255,255,0.2);padding:8px 14px 8px 12px;border-radius:8px;cursor:pointer;-webkit-tap-highlight-color:rgba(255,255,255,0.3);transition:background 0.15s;white-space:nowrap;}
+.back-link:active{background:rgba(255,255,255,0.35);}
+.back-bottom{width:100%;background:#fff;color:var(--navy);border:1.5px solid var(--navy);border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;-webkit-tap-highlight-color:rgba(192,20,30,0.1);}
+.back-bottom:active{background:#FFF0F0;}
 
 /* ─── PROFILE ─── */
 #s-profile{background:var(--bg);}
@@ -256,6 +259,7 @@ body{max-width:430px;margin:0 auto;}
     </div>
     <button class="add-btn" id="add-btn" onclick="addToCart()">カートに追加</button>
     <div class="need-sz" id="need-sz">サイズを選んでください</div>
+    <button class="back-bottom" onclick="goto('s-shop')">← 商品一覧へ戻る</button>
   </div>
 </div>
 
