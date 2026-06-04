@@ -671,7 +671,7 @@ async function checkout() {
   try {
     const res = await fetch(GAS_URL, {
       method: 'POST',
-      body: JSON.stringify({ profile, cart: cartData, total }),
+      body: JSON.stringify({ profile, cart: cartData, total, isTestMode: TEST_MODE }),
     });
     const json = await res.json();
     if (json.ordNum) ordNum = json.ordNum;
