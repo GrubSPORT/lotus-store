@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>2026_WBB STORE</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0D1B2A;--navy2:#16283d;--gold:#D4A820;
+  --bg:#F7F5F5;--card:#fff;--border:rgba(0,0,0,0.1);
+  --text:#1A1A1A;--muted:#6b6b6b;--red:#C0141E;
+}
+html,body{height:100%;font-family:'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--text);}
+body{max-width:430px;margin:0 auto;}
+.screen{display:none;flex-direction:column;min-height:100vh;}
+.screen.active{display:flex;}
+
+.top-bar{background:var(--navy);padding:15px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50;}
+.bar-logo{font-size:17px;font-weight:800;color:#fff;letter-spacing:.02em;}
+.bar-cart{background:rgba(255,255,255,0.95);border:none;border-radius:8px;padding:8px 14px;color:var(--navy);cursor:pointer;font-size:14px;font-weight:700;display:flex;align-items:center;gap:7px;}
+.badge{background:var(--red);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.back-link{font-size:14px;font-weight:700;color:#fff;background:rgba(255,255,255,0.2);padding:8px 14px;border-radius:8px;cursor:pointer;white-space:nowrap;}
+.back-link:active{background:rgba(255,255,255,0.35);}
+.back-bottom{width:100%;background:#fff;color:var(--navy);border:1.5px solid var(--navy);border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;}
+
+.hero{background:var(--navy);padding:34px 20px 26px;text-align:center;}
+.hero-team{font-size:24px;font-weight:800;color:#fff;letter-spacing:.02em;}
+.hero-sub{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-top:6px;}
+
+.form-body{flex:1;padding:24px 18px;overflow-y:auto;}
+.f-intro{font-size:16px;font-weight:800;margin-bottom:5px;}
+.f-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+.f-group{margin-bottom:18px;}
+.f-label{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px;}
+.f-label .req{color:var(--red);margin-left:4px;}
+.f-input{width:100%;border:1px solid var(--border);border-radius:10px;padding:14px;font-size:15px;background:#fff;color:var(--text);outline:none;-webkit-appearance:none;}
+.f-input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(13,27,42,0.1);}
+.f-hint{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.6;}
+.f-err{font-size:12px;color:var(--red);margin-top:5px;display:none;}
+.f-err.on{display:block;}
+.f-input.bad{border-color:var(--red);background:#fff7f7;}
+.pay-opts{display:flex;gap:10px;margin-top:8px;}
+.pay-opt{flex:1;border:1px solid var(--border);border-radius:12px;padding:16px 8px;text-align:center;cursor:pointer;background:#fff;}
+.pay-opt.sel{border-color:var(--navy);background:#EFF3F8;}
+.po-name{font-size:13px;font-weight:700;}
+.po-sub{font-size:10px;color:var(--muted);margin-top:3px;}
+.form-foot{padding:16px 18px;background:var(--bg);border-top:0.5px solid var(--border);flex-shrink:0;}
+
+.shop-body{flex:1;overflow-y:auto;padding:14px;}
+.profile-bar{background:var(--navy2);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;}
+.who{font-size:12px;color:rgba(255,255,255,0.8);}
+.who b{color:#fff;}
+.edit-link{font-size:11px;color:var(--gold);cursor:pointer;background:none;border:none;padding:0;}
+.sec-label{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.products{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.p-card{background:var(--card);border:0.5px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;}
+.p-card:active{transform:scale(0.98);}
+.p-thumb{width:100%;height:130px;overflow:hidden;position:relative;background:#E8E6E0;}
+.p-thumb img{width:100%;height:100%;object-fit:contain;background:#E8E6E0;}
+.p-thumb .no-img{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;background:#E0DEDA;}
+.p-body{padding:12px;flex:1;display:flex;flex-direction:column;}
+.p-name{font-size:14px;font-weight:700;line-height:1.3;}
+.p-sizes{font-size:11px;color:var(--muted);margin:4px 0 10px;}
+.p-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;}
+.p-price{font-size:16px;font-weight:800;}
+.p-arrow{font-size:20px;color:var(--muted);}
+
+@keyframes sp{0%,100%{opacity:1;}50%{opacity:.35;}}
+.detail-img{height:280px;background:#E8E6E0;flex-shrink:0;overflow:hidden;position:relative;}
+.img-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.35);border:none;color:#fff;font-size:28px;width:40px;height:56px;cursor:pointer;z-index:10;align-items:center;justify-content:center;display:none;}
+.img-arrow.l{left:0;} .img-arrow.r{right:0;}
+.detail-img img{width:100%;height:100%;object-fit:contain;background:#E8E6E0;}
+.detail-body{flex:1;overflow-y:auto;padding:20px 18px;}
+.d-name{font-size:22px;font-weight:800;margin-bottom:5px;line-height:1.3;}
+.d-price{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:24px;}
+.sz-label{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:block;}
+.sz-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;}
+.sz-btn{border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:var(--text);}
+.sz-btn.sel{background:var(--navy);color:#fff;border-color:var(--navy);}
+.qty-wrap{display:flex;align-items:center;border:1px solid var(--border);border-radius:12px;background:#fff;width:fit-content;margin-bottom:28px;}
+.q-btn{width:46px;height:46px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);}
+.q-num{width:44px;text-align:center;font-size:17px;font-weight:800;}
+.add-btn{width:100%;background:var(--navy);color:#fff;border:none;border-radius:12px;padding:17px;font-size:16px;font-weight:800;cursor:pointer;}
+.need-sz{font-size:12px;color:var(--red);margin-top:10px;text-align:center;display:none;}
+
+.cart-body{flex:1;overflow-y:auto;padding:14px;}
+.empty-cart{text-align:center;padding:90px 20px;color:var(--muted);}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+.c-item{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.c-thumb{width:56px;height:56px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#E8E6E0;}
+.c-thumb img{width:100%;height:100%;object-fit:contain;}
+.c-info{flex:1;min-width:0;}
+.c-name{font-size:14px;font-weight:700;line-height:1.3;}
+.c-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.c-right{text-align:right;flex-shrink:0;}
+.c-price{font-size:15px;font-weight:800;}
+.c-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;display:block;margin-top:6px;margin-left:auto;}
+.cart-foot{padding:16px 18px;border-top:0.5px solid var(--border);background:var(--bg);flex-shrink:0;}
+.total-row{display:flex;justify-content:space-between;font-size:18px;font-weight:800;margin-bottom:14px;}
+
+.confirm-body{flex:1;overflow-y:auto;padding:20px 16px 40px;}
+.confirm-hero{background:var(--navy);border-radius:18px;padding:28px 24px;text-align:center;margin-bottom:20px;}
+.ch-tag{font-size:10px;letter-spacing:0.25em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
+.ch-title{font-size:18px;font-weight:800;color:#fff;}
+.ch-num{font-size:30px;font-weight:800;color:var(--gold);margin-top:8px;}
+.conf-sec{background:var(--card);border:0.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;}
+.cs-title{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.cs-row{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:0.5px solid var(--border);gap:8px;}
+.cs-row:last-child{border:none;}
+.cs-row .label{color:var(--muted);flex-shrink:0;}
+.cs-row .val{font-weight:700;text-align:right;word-break:break-all;}
+.info-box{border-radius:12px;padding:16px;font-size:13px;line-height:1.75;margin-bottom:16px;white-space:pre-line;}
+.info-box.card{background:#FFF8E7;border:1px solid var(--gold);color:#7A5A00;}
+.info-box.bank{background:#EFF3F8;border:1px solid #93b4d3;color:var(--navy);}
+.btn-outline{width:100%;background:none;color:var(--navy);border:1px solid var(--border);border-radius:12px;padding:15px;font-size:14px;font-weight:600;cursor:pointer;}
+.btn-navy{width:100%;background:var(--navy);color:#fff;border:none;border-radius:12px;padding:17px;font-size:15px;font-weight:800;cursor:pointer;}
+.btn-navy:disabled{opacity:.5;}
+.spin{display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:r .7s linear infinite;vertical-align:-3px;}
+@keyframes r{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="test-badge" style="display:none;position:fixed;top:8px;right:8px;background:#FF6B00;color:#fff;padding:4px 10px;border-radius:4px;font-size:10px;font-weight:bold;z-index:9999;letter-spacing:0.15em;">TEST MODE</div>
+
+<!-- ① プロフィール入力 -->
+<div class="screen active" id="s-profile">
+  <div class="hero">
+    <div class="hero-team" id="hero-team">2026_WBB</div>
+    <div class="hero-sub">ONLINE STORE</div>
+  </div>
+  <div class="form-body">
+    <div class="f-intro">ご注文者情報</div>
+    <div class="f-sub">お届け先の情報をご入力ください。</div>
+
+    <div class="f-group">
+      <label class="f-label">お名前<span class="req">必須</span></label>
+      <input class="f-input" id="p-name" placeholder="例：山田 太郎" autocomplete="name">
+      <div class="f-err" id="e-name"></div>
+    </div>
+    <div class="f-group">
+      <label class="f-label">メールアドレス<span class="req">必須</span></label>
+      <input class="f-input" id="p-email" type="email" placeholder="name@example.com" autocomplete="email">
+      <div class="f-hint">ご請求書・決済リンクをこちらへお送りします。</div>
+      <div class="f-err" id="e-email"></div>
+    </div>
+    <div class="f-group">
+      <label class="f-label">郵便番号<span class="req">必須</span></label>
+      <input class="f-input" id="p-zip" inputmode="numeric" placeholder="例：167-0051" autocomplete="postal-code">
+      <div class="f-hint" id="zip-note" style="display:none;"></div>
+      <div class="f-err" id="e-zip"></div>
+    </div>
+    <div class="f-group">
+      <label class="f-label">住所<span class="req">必須</span></label>
+      <input class="f-input" id="p-addr" placeholder="都道府県から番地・建物名まで" autocomplete="street-address">
+      <div class="f-err" id="e-addr"></div>
+    </div>
+    <div class="f-group">
+      <label class="f-label">電話番号<span class="req">必須</span></label>
+      <input class="f-input" id="p-tel" inputmode="tel" placeholder="例：090-1234-5678" autocomplete="tel">
+      <div class="f-err" id="e-tel"></div>
+    </div>
+    <div class="f-group">
+      <label class="f-label">お支払い方法<span class="req">必須</span></label>
+      <div class="pay-opts">
+        <div class="pay-opt sel" id="po-card" onclick="selPay('card')">
+          <div class="po-name">カード決済</div><div class="po-sub">Square</div>
+        </div>
+        <div class="pay-opt" id="po-bank" onclick="selPay('bank')">
+          <div class="po-name">銀行振込</div><div class="po-sub">後日確認</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="form-foot"><button class="btn-navy" onclick="saveProfile()">商品を選ぶ →</button></div>
+</div>
+
+<!-- ② 商品一覧 -->
+<div class="screen" id="s-shop">
+  <div class="top-bar">
+    <div class="bar-logo" id="shop-title">2026_WBB</div>
+    <button class="bar-cart" onclick="showCart()">カート <span class="badge" id="cart-badge">0</span></button>
+  </div>
+  <div class="profile-bar">
+    <div class="who">注文者：<b id="disp-name">—</b></div>
+    <button class="edit-link" onclick="goto('s-profile')">情報を変更</button>
+  </div>
+  <div class="shop-body">
+    <div class="sec-label">アイテム一覧</div>
+    <div class="products" id="products-list"></div>
+  </div>
+</div>
+
+<!-- ③ 商品詳細 -->
+<div class="screen" id="s-detail">
+  <div class="top-bar">
+    <span class="back-link" onclick="backFromDetail()">← 戻る</span>
+    <div class="bar-logo">2026_WBB</div>
+  </div>
+  <div class="detail-img" id="d-img">
+    <img id="d-img-el" src="" alt="" onerror="this.style.display='none';document.getElementById('d-img-none').style.display='flex'">
+    <div id="d-img-none" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px;">👕</div>
+    <button class="img-arrow l" id="img-prev" onclick="prevImage()">‹</button>
+    <button class="img-arrow r" id="img-next" onclick="nextImage()">›</button>
+  </div>
+  <div class="detail-body">
+    <div class="d-name" id="d-name"></div>
+    <div class="d-price" id="d-price"></div>
+    <span class="sz-label" id="sz-label-el">サイズを選ぶ</span>
+    <div class="sz-row" id="d-sizes"></div>
+    <span class="sz-label">数量</span>
+    <div class="qty-wrap">
+      <button class="q-btn" onclick="adjQty(-1)">−</button>
+      <span class="q-num" id="d-qty">1</span>
+      <button class="q-btn" onclick="adjQty(1)">＋</button>
+    </div>
+    <button class="add-btn" onclick="addToCart()">カートに追加</button>
+    <div class="need-sz" id="need-sz">サイズを選んでください</div>
+    <button class="back-bottom" onclick="backFromDetail()">← 戻る</button>
+  </div>
+</div>
+
+<!-- ④ カート -->
+<div class="screen" id="s-cart">
+  <div class="top-bar">
+    <span class="back-link" onclick="backFromCart()">← 続けて選ぶ</span>
+    <div class="bar-logo">2026_WBB</div>
+  </div>
+  <div class="cart-body" id="cart-body"></div>
+  <div class="cart-foot">
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px;"><span>商品小計</span><span id="cart-subtotal">¥0</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:10px;"><span>送料（全国一律）</span><span id="cart-ship">¥0</span></div>
+    <div class="total-row"><span>合計（税込）</span><span id="cart-total">¥0</span></div>
+    <button class="btn-navy" id="checkout-btn" onclick="checkout()">注文を確定する</button>
+  </div>
+</div>
+
+<!-- ⑤ 完了 -->
+<div class="screen" id="s-confirm">
+  <div class="top-bar"><div class="bar-logo">2026_WBB</div></div>
+  <div class="confirm-body">
+    <div class="confirm-hero">
+      <div class="ch-tag">Order Confirmed</div>
+      <div class="ch-title">ご注文を受け付けました</div>
+      <div class="ch-num" id="c-ordnum">—</div>
+    </div>
+    <div class="conf-sec">
+      <div class="cs-title">注文内容</div>
+      <div id="c-items"></div>
+    </div>
+    <div class="conf-sec">
+      <div class="cs-title">お届け先・ご請求</div>
+      <div class="cs-row"><span class="label">お名前</span><span class="val" id="c-name"></span></div>
+      <div class="cs-row"><span class="label">ご請求先メール</span><span class="val" id="c-email"></span></div>
+    </div>
+    <div class="info-box" id="c-payinfo"></div>
+    <button class="btn-outline" onclick="backHome()">トップに戻る</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// ★ デプロイ後、下記 GAS_URL を実際の /exec URLに差し替えてください
+// ══════════════════════════════════════════════════════
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxYZ_Dsx2lVIjH_IGRu5PtXqSWeYWhzrcOZk1UbVwdnX9pfrb3DLkdXU2mSZGvSylg/exec';
+
+const TEAM_CODE = '2026_WBB';
+const SHIPPING_FEE = 880; // 全国一律・1注文（GAS側 CONFIG.SHIPPING_FEE と一致させること）
+const TEST_MODE = location.search.includes('test=1');
+
+let products = [], cart = [], selProduct = null, selSize = null, qty = 1, payMethod = 'card', curImg = 0;
+let isSingleProduct = false; // 商品1つなら一覧を飛ばして詳細直行
+let profile = null;
+
+function goto(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function selPay(m){
+  payMethod=m;
+  document.getElementById('po-card').classList.toggle('sel',m==='card');
+  document.getElementById('po-bank').classList.toggle('sel',m==='bank');
+}
+function fieldErr(id,msg){
+  const e=document.getElementById('e-'+id), inp=document.getElementById('p-'+id);
+  if(e){e.textContent=msg;e.classList.add('on');}
+  if(inp){inp.classList.add('bad');inp.focus();inp.scrollIntoView({behavior:'smooth',block:'center'});}
+}
+function clrErr(id){
+  const e=document.getElementById('e-'+id), inp=document.getElementById('p-'+id);
+  if(e){e.textContent='';e.classList.remove('on');}
+  if(inp)inp.classList.remove('bad');
+}
+
+function saveProfile(){
+  const name=document.getElementById('p-name').value.trim();
+  const email=document.getElementById('p-email').value.trim();
+  const zip=document.getElementById('p-zip').value.trim();
+  const addr=document.getElementById('p-addr').value.trim();
+  const tel=document.getElementById('p-tel').value.trim();
+  ['name','email','zip','addr','tel'].forEach(clrErr);
+  if(!name){fieldErr('name','お名前を入力してください');return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){fieldErr('email','メールアドレスを確認してください');return;}
+  if(!/^\d{3}-?\d{4}$/.test(zip)){fieldErr('zip','郵便番号は7桁で入力してください');return;}
+  if(addr.length<5){fieldErr('addr','住所を正しく入力してください');return;}
+  if(!/^[\d\-+()\s]{10,}$/.test(tel)){fieldErr('tel','電話番号を正しく入力してください');return;}
+  profile={name:name,email:email,zip:zip,address:addr,tel:tel,pay:payMethod};
+  loadShop(); // 遷移はloadShop内で商品数に応じて決定
+}
+
+async function loadShop(){
+  document.getElementById('disp-name').textContent=profile.name;
+  updateBadge();
+  showSkeleton();
+  try{
+    const res=await fetch(GAS_URL,{method:'GET'});
+    const json=await res.json();
+    if(json.error)throw new Error(json.error);
+    products=json.products.map(p=>({...p,images:(p.images||[]).map(normalizeImageUrl)}));
+    isSingleProduct = (products.length === 1);
+    if(isSingleProduct){
+      openDetail(products[0].id); // 一覧を飛ばして詳細直行
+    }else{
+      renderProductList();
+      goto('s-shop');
+    }
+  }catch(err){
+    document.getElementById('products-list').innerHTML=
+      '<div style="text-align:center;padding:40px;color:var(--muted);font-size:13px;">商品の読み込みに失敗しました<br><button class="btn-navy" onclick="loadShop()" style="width:auto;padding:10px 24px;margin-top:16px;">再試行</button></div>';
+  }
+}
+
+function showSkeleton(){
+  document.getElementById('products-list').innerHTML=Array(4).fill(
+    '<div class="p-card" style="pointer-events:none;"><div class="p-thumb" style="animation:sp 1.4s infinite;"></div><div class="p-body"><div style="height:14px;background:#E8E6E0;border-radius:4px;margin-bottom:8px;width:80%;animation:sp 1.4s infinite;"></div><div style="height:10px;background:#E8E6E0;border-radius:4px;width:55%;animation:sp 1.4s infinite;"></div></div></div>'
+  ).join('');
+}
+
+function normalizeImageUrl(url){
+  if(!url)return '';
+  const m=url.match(/[?&]id=([^&]+)/);
+  if(m)return 'https://lh3.googleusercontent.com/d/'+m[1]+'=w600';
+  const m2=url.match(/\/d\/([^\/]+)/);
+  if(m2)return 'https://lh3.googleusercontent.com/d/'+m2[1]+'=w600';
+  return url;
+}
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+function renderProductList(){
+  document.getElementById('products-list').innerHTML=products.map(p=>
+    '<div class="p-card" onclick="openDetail('+p.id+')">'+
+      '<div class="p-thumb">'+
+        (p.images&&p.images.length>0
+          ? '<img src="'+esc(p.images[0])+'" alt="'+esc(p.name)+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="no-img" style="display:none;">👕</div>'
+          : '<div class="no-img">👕</div>')+
+      '</div>'+
+      '<div class="p-body"><div class="p-name">'+esc(p.name)+'</div>'+
+      '<div class="p-sizes">'+esc(p.sizes.join(' / '))+'</div>'+
+      '<div class="p-footer"><div class="p-price">¥'+p.price.toLocaleString()+'</div><div class="p-arrow">›</div></div></div></div>'
+  ).join('');
+}
+
+function openDetail(id){
+  selProduct=products.find(p=>p.id===id);
+  if(!selProduct)return;
+  selSize=null; qty=1; curImg=0;
+  document.getElementById('d-img-none').style.display='none';
+  document.getElementById('d-img-el').style.display='';
+  document.getElementById('d-img-el').src=(selProduct.images&&selProduct.images.length>0)?selProduct.images[0]:'';
+  const multi=selProduct.images&&selProduct.images.length>1;
+  document.getElementById('img-prev').style.display=multi?'flex':'none';
+  document.getElementById('img-next').style.display=multi?'flex':'none';
+  document.getElementById('d-name').textContent=selProduct.name;
+  document.getElementById('d-price').textContent='¥'+selProduct.price.toLocaleString()+'（税込）';
+  document.getElementById('d-qty').textContent=1;
+  document.getElementById('need-sz').style.display='none';
+  const sizes=selProduct.sizes;
+  if(sizes.length===1){
+    selSize=sizes[0];
+    document.getElementById('sz-label-el').style.display='none';
+    document.getElementById('d-sizes').innerHTML='<div style="font-size:13px;color:var(--muted);">'+esc(sizes[0])+'</div>';
+  }else{
+    document.getElementById('sz-label-el').style.display='block';
+    document.getElementById('d-sizes').innerHTML=sizes.map(s=>'<button class="sz-btn" onclick="selSz(this,\''+esc(s)+'\')">'+esc(s)+'</button>').join('');
+  }
+  goto('s-detail');
+}
+
+function selSz(el,s){
+  document.querySelectorAll('.sz-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel'); selSize=s;
+  document.getElementById('need-sz').style.display='none';
+}
+function adjQty(d){ qty=Math.max(1,Math.min(20,qty+d)); document.getElementById('d-qty').textContent=qty; }
+
+function showImage(idx){
+  const imgs=selProduct.images;
+  if(!imgs||imgs.length===0)return;
+  curImg=((idx%imgs.length)+imgs.length)%imgs.length;
+  document.getElementById('d-img-el').src=imgs[curImg];
+}
+function prevImage(){showImage(curImg-1);}
+function nextImage(){showImage(curImg+1);}
+
+function addToCart(){
+  if(!selSize){document.getElementById('need-sz').style.display='block';return;}
+  const ex=cart.find(i=>i.id===selProduct.id&&i.size===selSize);
+  if(ex)ex.qty=Math.min(ex.qty+qty,20);
+  else cart.push({id:selProduct.id,name:selProduct.name,price:selProduct.price,size:selSize,qty:qty,images:selProduct.images});
+  updateBadge();
+  if(isSingleProduct){ showCart(); } else { goto('s-shop'); }
+}
+function backFromDetail(){
+  if(isSingleProduct){ goto('s-profile'); } else { goto('s-shop'); }
+}
+function backFromCart(){
+  if(isSingleProduct){ goto('s-detail'); } else { goto('s-shop'); }
+}
+function updateBadge(){
+  document.getElementById('cart-badge').textContent=cart.reduce((a,i)=>a+i.qty,0);
+}
+
+function showCart(){
+  const body=document.getElementById('cart-body');
+  if(!cart.length){
+    body.innerHTML='<div class="empty-cart"><div class="empty-icon">🛒</div><div>カートは空です</div></div>';
+    goto('s-cart');return;
+  }
+  body.innerHTML=cart.map((item,idx)=>
+    '<div class="c-item"><div class="c-thumb">'+
+    ((item.images&&item.images.length>0)?'<img src="'+esc(item.images[0])+'" alt="'+esc(item.name)+'" loading="lazy">':'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px;">👕</div>')+
+    '</div><div class="c-info"><div class="c-name">'+esc(item.name)+'</div>'+
+    '<div class="c-sub">サイズ：'+esc(item.size)+'　×'+item.qty+'</div></div>'+
+    '<div class="c-right"><div class="c-price">¥'+(item.price*item.qty).toLocaleString()+'</div>'+
+    '<button class="c-del" onclick="removeItem('+idx+')">✕</button></div></div>'
+  ).join('');
+  const sub=cart.reduce((a,i)=>a+i.price*i.qty,0);
+  document.getElementById('cart-subtotal').textContent='¥'+sub.toLocaleString();
+  document.getElementById('cart-ship').textContent='¥'+SHIPPING_FEE.toLocaleString();
+  document.getElementById('cart-total').textContent='¥'+(sub+SHIPPING_FEE).toLocaleString();
+  goto('s-cart');
+}
+function removeItem(idx){ cart.splice(idx,1); updateBadge(); showCart(); }
+
+async function checkout(){
+  if(!cart.length)return;
+  const btn=document.getElementById('checkout-btn');
+  btn.innerHTML='<span class="spin"></span> 送信中...'; btn.disabled=true;
+
+  const total=cart.reduce((a,i)=>a+i.price*i.qty,0)+SHIPPING_FEE;
+  const cartData=cart.map(i=>({id:i.id,name:i.name,size:i.size,qty:i.qty,price:i.price}));
+
+  let ordNum='受付完了';
+  try{
+    const res=await fetch(GAS_URL,{method:'POST',body:JSON.stringify({profile:profile,cart:cartData,total:total,isTestMode:TEST_MODE})});
+    const json=await res.json();
+    if(json.status==='error'){ alert(json.message||'送信に失敗しました'); btn.textContent='注文を確定する'; btn.disabled=false; return; }
+    if(json.ordNum)ordNum=json.ordNum;
+  }catch(err){
+    alert('通信エラーが発生しました。電波の良い場所で再度お試しください。');
+    btn.textContent='注文を確定する'; btn.disabled=false; return;
+  }
+
+  document.getElementById('c-ordnum').textContent=ordNum;
+  document.getElementById('c-name').textContent=profile.name;
+  document.getElementById('c-email').textContent=profile.email;
+  const subC=cart.reduce((a,i)=>a+i.price*i.qty,0);
+  document.getElementById('c-items').innerHTML=
+    cart.map(i=>'<div class="cs-row"><span class="label">'+esc(i.name)+'（'+esc(i.size)+'）×'+i.qty+'</span><span class="val">¥'+(i.price*i.qty).toLocaleString()+'</span></div>').join('')+
+    '<div class="cs-row"><span class="label">商品小計</span><span class="val">¥'+subC.toLocaleString()+'</span></div>'+
+    '<div class="cs-row"><span class="label">送料（全国一律）</span><span class="val">¥'+SHIPPING_FEE.toLocaleString()+'</span></div>'+
+    '<div class="cs-row" style="font-weight:800;font-size:15px;"><span class="label">合計</span><span class="val">¥'+total.toLocaleString()+'</span></div>';
+
+  const infoBox=document.getElementById('c-payinfo');
+  if(profile.pay==='card'){
+    infoBox.className='info-box card';
+    infoBox.textContent='ご注文を受け付けました。\nこのページは閉じて構いません。\n\nクレジットカード決済リンクは、数分以内に '+profile.email+' へ自動送信されます。';
+  }else{
+    infoBox.className='info-box bank';
+    infoBox.textContent='ご注文を受け付けました。\nこのページは閉じて構いません。\n\n振込先のご案内は、数分以内に '+profile.email+' へ自動送信されます。';
+  }
+
+  btn.textContent='注文を確定する'; btn.disabled=false;
+  cart=[]; updateBadge(); goto('s-confirm');
+}
+
+function backHome(){ if(isSingleProduct){ openDetail(products[0].id); } else { goto('s-shop'); } }
+
+// 郵便番号→住所 自動補完（zipcloud。失敗しても手入力で続行可）
+function lookupZip(digits){
+  const note=document.getElementById('zip-note');
+  if(note){note.style.display='block';note.style.color='var(--muted)';note.textContent='住所を検索中...';}
+  let done=false;
+  const timer=setTimeout(()=>{if(!done){done=true;if(note)note.textContent='自動入力できませんでした。ご自身で入力してください。';}},6000);
+  try{
+    const s=document.createElement('script');
+    const cb='zipcb_'+Date.now();
+    window[cb]=function(res){
+      done=true; clearTimeout(timer);
+      try{document.body.removeChild(s);}catch(e){}
+      try{delete window[cb];}catch(e){window[cb]=undefined;}
+      if(res&&res.results&&res.results[0]){
+        const r=res.results[0];
+        const addr=document.getElementById('p-addr');
+        if(addr&&!addr.value){ addr.value=(r.address1||'')+(r.address2||'')+(r.address3||''); clrErr('addr'); }
+        if(note)note.style.display='none';
+      }else{ if(note)note.textContent='該当する住所が見つかりませんでした。ご自身で入力してください。'; }
+    };
+    s.src='https://zipcloud.ibsnet.co.jp/api/search?zipcode='+digits+'&callback='+cb;
+    s.onerror=function(){done=true;clearTimeout(timer);if(note)note.textContent='自動入力できませんでした。ご自身で入力してください。';};
+    document.body.appendChild(s);
+  }catch(e){ if(note)note.textContent='自動入力できませんでした。ご自身で入力してください。'; }
+}
+
+function initApp(){
+  if(TEST_MODE){ const b=document.getElementById('test-badge'); if(b)b.style.display='block'; }
+  const zp=document.getElementById('p-zip');
+  if(zp)zp.oninput=function(){
+    clrErr('zip');
+    const digits=zp.value.replace(/[^0-9]/g,'').slice(0,7);
+    zp.value=digits.length>3?digits.slice(0,3)+'-'+digits.slice(3):digits;
+    if(digits.length===7)lookupZip(digits);
+  };
+  ['name','email','addr','tel'].forEach(id=>{
+    const el=document.getElementById('p-'+id);
+    if(el)el.oninput=function(){clrErr(id);};
+  });
+  goto('s-profile');
+}
+window.onload=initApp;
+</script>
+</body>
+</html>
